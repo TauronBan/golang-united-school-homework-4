@@ -2,6 +2,9 @@ package string_sum
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 )
 
 //use these errors as appropriate, wrapping them with fmt.Errorf function
@@ -22,6 +25,43 @@ var (
 //
 // Use the errors defined above as described, again wrapping into fmt.Errorf
 
+func sum(a, b string) (string, error) {
+	first, err1 := strconv.Atoi(a)
+	if err1 != nil {
+		return "", fmt.Errorf("not valid input: %w", err1)
+	}
+
+	second, err2 := strconv.Atoi(b)
+	if err2 != nil {
+		return "", fmt.Errorf("not valid input: %w", err2)
+	}
+	return strconv.Itoa(first + second), nil
+}
+
 func StringSum(input string) (output string, err error) {
-	return "", nil
+	input = strings.ReplaceAll(input, " ", "")
+	input = strings.ReplaceAll(input, "\t", "")
+	input = strings.ReplaceAll(input, "\n", "")
+
+	if input == "" {
+		return "", fmt.Errorf("empty string provided: %w", errorEmptyInput)
+	}
+	operands := strings.Split(input, "+")
+
+	if len(operands) == 1 {
+		if strings.Count(input, "-") > 2 || strings.Count(input, "-") == 0 {
+			return "", fmt.Errorf("unexpected number of operands: %w", errorNotTwoOperands)
+		}
+		lastIndex := strings.LastIndex(input, "-")
+		if len(input)-1 == lastIndex {
+			return "", fmt.Errorf("unexpected number of operands: %w", errorNotTwoOperands)
+		}
+		return sum(input[:lastIndex], input[lastIndex:])
+	}
+
+	if len(operands) != 2 {
+		return "", fmt.Errorf("two many operands: %w", errorNotTwoOperands)
+	}
+
+	return sum(operands[0], operands[1])
 }
